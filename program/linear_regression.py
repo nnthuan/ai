@@ -1,56 +1,48 @@
 import numpy as np
-import matplotlib.pyplot as plt
 
-# Dữ liệu mẫu (diện tích nhà và giá nhà)
-x = np.array([50, 80, 120])
+class LinearRegression:
+    def __init__(self, learning_rate=0.01, epochs=1000):
+        self.learning_rate = learning_rate
+        self.epochs = epochs
+        self.w = None
+        self.b = None
+
+    def fit(self, X, y):
+        n_samples, n_features = X.shape
+        self.w = np.zeros(n_features)
+        self.b = 0
+
+        for epoch in range(self.epochs):
+            y_pred = np.dot(X,self.w) + self.b
+            dw = (2 / n_samples) * np.dot(X.T, (y_pred - y))
+            db = (2 / n_samples) * np.sum(y_pred - y)
+
+            self.w -= self.learning_rate * dw
+            self.b -= self.learning_rate * db
+
+            if epoch % 100 == 0:
+                loss = np.mean((y_pred - y) ** 2)
+                print(f"Epoch {epoch}: Loss={loss:.4f}")
+
+    def predict(self, X):
+        return np.dot(X, self.w) + self.b
+    
+# Tạo dữ liệu mẫu
+X = np.array([
+    [50, 2],
+    [80, 3],
+    [120, 4]
+])
 y = np.array([150, 250, 350])
 
-# Khởi tạo ngẫu nhiên w và b
-w = np.random.randn()
-b = np.random.randn()
+# Tạo mô hình và huấn luyện
+model = LinearRegression(learning_rate=0.0001, epochs=1000)
+model.fit(X, y)
 
-# Các siêu tham số
-learning_rate = 0.0001
-epochs = 1000
-
-# Huấn luyện mô hình
-for epoch in range(epochs):
-    # 1. Dự đoán
-    y_pred = w * x + b
-
-    # 2. Tính Loss
-    loss = np.mean((y_pred - y) ** 2)
- 
-    # 3. Tính gradient
-    dw = np.mean(2 * (y_pred - y) * x)
-    db = np.mean(2 * (y_pred - y))
-
-    # 4. Cập nhật tham số
-    w -= learning_rate * dw
-    b -= learning_rate * db
-
-    # 5. In loss mỗi 100 epochs
-    if epoch % 100 == 0:
-        print(f"Epoch {epoch}: Loss = {loss:.4f}, b = {b:.4f}")
-
-# Vẽ dữ liệu thật và đường thẳng dự đoán
-
-plt.scatter(x,y,color='blue',label='Dữ liệu thật')
-plt.plot(x, w * x + b, color='red', label='Đường dự đoán')
-plt.xlabel('Diện tích nhà (m²)')
-plt.ylabel('Giá nhà (nghìn USD)')
-plt.legend()
-plt.show()
-
-# Giải thích nhanh:
-# | Bước           | Ý nghĩa                                        |
-# |:---------------|:-----------------------------------------------|
-# | y_pred         | Tính giá trị dự đoán dựa trên w và b hiện tại  |
-# | loss           | Tính sai số trung bình giữa dự đoán và thực tế |
-# | dw, db         | Tính đạo hàm để biết hướng điều chỉnh w, b     |
-# | cập nhật w, b  | Dịch w và b theo hướng giảm loss               |
-
-# Kết quả mong đợi:
-# - Ban đầu loss khá lớn.
-# - Sau nhiều vòng (epoch), loss sẽ giảm dần.
-# - Cuối cùng, đường thẳng (đường màu đỏ) sẽ fit sát dữ liệu thật (các điểm xanh).
+# Dự đoán trên dữ liệu mới
+X_new = np.array([
+    [100, 3],
+    [60, 2]
+])
+predictions = model.predict(X_new)
+print("Dự đoán giá nhà:", predictions)
